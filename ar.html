@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>AR Динозавр</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            z-index: 20;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            background: #ffaa00;
+            color: #1a1a2e;
+            transition: transform 0.2s;
+        }
+        button:active {
+            transform: scale(0.96);
+        }
+        #ar-button {
+            background: #00aaff;
+            color: white;
+            box-shadow: 0 0 10px rgba(0,170,255,0.5);
+        }
+        .back-btn {
+            background: #2c3e50;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1e2a3a, #0f172a);
+            color: white;
+            padding: 25px;
+            border-radius: 24px;
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
+            border-top: 4px solid #ffaa00;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: white;
+        }
+        .dino-name-modal {
+            font-size: 28px;
+            margin: 15px 0 10px;
+            color: #ffaa00;
+        }
+        .dino-desc {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/model-viewer": "https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import '@google/model-viewer';
+
+        // Получаем параметр dino из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let dinoKey = urlParams.get('dino') || 'trex';
+
+        // Соответствие ключей файлам моделей (должны лежать в корне репозитория)
+        const models = {
+            trex: 'trex.glb',
+            spinosaurus: 'spinosaurus.glb',
+            carnotaurus: 'carnotaurus.glb'
+        };
+
+        // Информация о динозаврах для модального окна
+        const dinoInfo = {
+            trex: { name: 'Тираннозавр', desc: '🦖 Длина: 12 м | Вес: 7 т | Период: Мел<br>Один из самых крупных хищников всех времён.' },
+            spinosaurus: { name: 'Спинозавр', desc: '🦕 Длина: 15 м | Вес: 7 т | Период: Мел<br>Крупнейший хищный динозавр, плавал и охотился в воде.' },
+            carnotaurus: { name: 'Карнотавр', desc: '🦖 Длина: 8 м | Вес: 1.5 т | Период: Мел<br>Быстрый хищник с короткими рогами над глазами.' }
+        };
+
+        const modelFile = models[dinoKey] || models.trex;
+        const currentDinoInfo = dinoInfo[dinoKey] || dinoInfo.trex;
+
+        // Элементы DOM
+        const modelViewer = document.querySelector('model-viewer');
+        const arButton = document.getElementById('ar-button');
+        const backBtn = document.getElementById('back-btn');
+        const modal = document.getElementById('infoModal');
+        const closeBtn = document.querySelector('.close-btn');
+        const modalDinoName = document.getElementById('modal-dino-name');
+        const modalDinoDesc = document.getElementById('modal-dino-desc');
+
+        // Устанавливаем модель
+        modelViewer.src = modelFile;
+
+        // Кнопка AR (дублирует встроенную, но для надёжности)
+        arButton.addEventListener('click', () => {
+            modelViewer.activateAR();
+        });
+
+        // Кнопка назад в галерею
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // При клике на модель показываем табличку
+        modelViewer.addEventListener('click', (event) => {
+            const intersection = modelViewer.positionAndNormalFromPoint(event.clientX, event.clientY);
+            if (intersection) {
+                modalDinoName.textContent = currentDinoInfo.name;
+                modalDinoDesc.innerHTML = currentDinoInfo.desc;
+                modal.style.display = 'flex';
+            }
+        });
+
+        // Закрытие модального окна
+        closeBtn.onclick = () => { modal.style.display = 'none'; };
+        window.onclick = (event) => {
+            if (event.target === modal) modal.style.display = 'none';
+        };
+    </script>
+</head>
+<body>
+    <model-viewer 
+        id="ar-dino"
+        src="trex.glb"
+        alt="3D модель динозавра"
+        ar 
+        ar-modes="quick-look webxr scene-viewer"
+        ar-scale="auto"
+        camera-controls 
+        environment-image="neutral"
+        shadow-intensity="1"
+        style="width: 100%; height: 100%;">
+    </model-viewer>
+
+    <div class="controls">
+        <button id="back-btn" class="back-btn">← Назад</button>
+        <button id="ar-button">🚀 Поставить в AR</button>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="dino-name-modal" id="modal-dino-name">Тираннозавр</div>
+            <div class="dino-desc" id="modal-dino-desc">
+                Длина: 12 м | Вес: 7 т | Период: Мел
+            </div>
+        </div>
+    </div>
+</body>
+</html>
