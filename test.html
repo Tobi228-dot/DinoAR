@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>AR Test</title>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/model-viewer": "https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import '@google/model-viewer';
+    </script>
+</head>
+<body>
+    <model-viewer 
+        src="trex.glb"
+        ar 
+        ar-modes="quick-look webxr scene-viewer"
+        camera-controls
+        style="width: 100%; height: 100%;">
+    </model-viewer>
+</body>
+</html>
