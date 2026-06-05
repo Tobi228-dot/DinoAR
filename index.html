@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Тест AR Тираннозавр</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #ffaa00;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            z-index: 20;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/model-viewer": "https://unpkg.com/@google/model-viewer@latest/dist/model-viewer.js"
+            }
+        }
+    </script>
+    <script type="module">
+        import '@google/model-viewer';
+        document.getElementById('ar-btn').addEventListener('click', () => {
+            document.querySelector('model-viewer').activateAR();
+        });
+    </script>
+</head>
+<body>
+    <model-viewer 
+        src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/T-Rex/glTF-Binary/T-Rex.glb"
+        alt="T-Rex"
+        ar
+        ar-modes="quick-look webxr scene-viewer"
+        camera-controls
+        style="width: 100%; height: 100%;">
+    </model-viewer>
+    <button id="ar-btn">🚀 Поставить в AR</button>
+</body>
+</html>
